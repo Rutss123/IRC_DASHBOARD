@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-space-950 text-slate-100 font-sans selection:bg-cyber-amber selection:text-space-950 antialiased overflow-x-hidden;
+    background-color: #060608;
+    background-image: 
+      radial-gradient(circle at 50% 20%, rgba(11, 19, 43, 0.15) 0%, transparent 60%),
+      linear-gradient(rgba(18, 24, 38, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(18, 24, 38, 0.05) 1px, transparent 1px);
+    background-size: 100% 100%, 24px 24px, 24px 24px;
+  }
+
+  /* Custom high-tech scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-space-950;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-space-700 border border-space-800 rounded-sm hover:bg-cyber-amber/60 transition-colors;
+  }
+}
+
+@layer utilities {
+  .hud-panel {
+    @apply bg-space-900/80 border border-space-800 rounded-lg relative overflow-hidden backdrop-blur-md;
+  }
+  
+  .hud-border-cyan {
+    @apply border-cyber-cyan/30 shadow-glow-cyan/10;
+  }
+
+  .hud-border-amber {
+    @apply border-cyber-amber/30 shadow-glow-amber/10;
+  }
+
+  .hud-border-orange {
+    @apply border-cyber-orange/40 shadow-glow-amber/10;
+  }
+
+  .hud-border-green {
+    @apply border-cyber-green/30 shadow-glow-green/10;
+  }
+
+  .hud-border-red {
+    @apply border-cyber-red/30 shadow-glow-red/10;
+  }
+  
+  .hud-glow-amber {
+    text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+  }
+
+  .hud-glow-cyan {
+    text-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+  }
+
+  .hud-glow-green {
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+  }
+
+  /* Aerospace corner brackets */
+  .hud-brackets::before, .hud-brackets::after,
+  .hud-brackets > :first-child::before, .hud-brackets > :first-child::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-color: rgba(245, 158, 11, 0.35); /* default to amber */
+    border-style: solid;
+    pointer-events: none;
+  }
+
+  .hud-brackets::before {
+    top: 0;
+    left: 0;
+    border-width: 1.5px 0 0 1.5px;
+  }
+
+  .hud-brackets::after {
+    top: 0;
+    right: 0;
+    border-width: 1.5px 1.5px 0 0;
+  }
+
+  .hud-brackets > :first-child::before {
+    bottom: 0;
+    left: 0;
+    border-width: 0 0 1.5px 1.5px;
+  }
+
+  .hud-brackets > :first-child::after {
+    bottom: 0;
+    right: 0;
+    border-width: 0 1.5px 1.5px 0;
+  }
+
+  /* Cyan corners */
+  .hud-brackets-cyan::before, .hud-brackets-cyan::after,
+  .hud-brackets-cyan > :first-child::before, .hud-brackets-cyan > :first-child::after {
+    border-color: rgba(6, 182, 212, 0.4) !important;
+  }
+
+  /* Scanline & Grid Overlays */
+  .scanlines {
+    position: relative;
+    overflow: hidden;
+  }
+  .scanlines::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 10;
+    background-size: 100% 3px, 6px 100%;
+    pointer-events: none;
+  }
+
+  .grid-overlay {
+    background-image: 
+      linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: center;
+  }
+}
