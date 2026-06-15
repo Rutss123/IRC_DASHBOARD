@@ -15,16 +15,33 @@ class RoverSocketManager {
   }
 
   connect(url) {
-    this.url = url;
-    console.log(`Connecting to Rover Mission Control WebSocket: ${url}`);
-    
-    // Future FastAPI WebSocket integration:
-    // this.socket = new WebSocket(url);
-    // this.socket.onopen = this.handleOpen.bind(this);
-    // this.socket.onmessage = this.handleMessage.bind(this);
-    // this.socket.onclose = this.handleClose.bind(this);
-    // this.socket.onerror = this.handleError.bind(this);
+  if (
+    this.socket &&
+    this.socket.readyState === WebSocket.OPEN
+  ) {
+    return;
   }
+
+  this.url = url;
+
+  console.log(
+    `Connecting to Rover Mission Control WebSocket: ${url}`
+  );
+
+  this.socket = new WebSocket(url);
+
+  this.socket.onopen =
+    this.handleOpen.bind(this);
+
+  this.socket.onmessage =
+    this.handleMessage.bind(this);
+
+  this.socket.onclose =
+    this.handleClose.bind(this);
+
+  this.socket.onerror =
+    this.handleError.bind(this);
+}
 
   disconnect() {
     if (this.socket) {
@@ -59,26 +76,32 @@ class RoverSocketManager {
   }
 
   handleOpen() {
-    this.isConnected = true;
-    this.trigger("connect");
-  }
+  console.log("SOCKET OPENED SUCCESSFULLY");
+  this.isConnected = true;
+  this.trigger("connect");
+}
 
-  handleMessage(e) {
-    try {
-      const payload = JSON.parse(e.data);
-      if (payload.event) {
-        this.trigger(payload.event, payload.data);
-      }
-    } catch (err) {
-      console.error("Socket message error:", err);
-    }
-  }
+handleMessage(e) {
+  try {
+    const payload = JSON.parse(e.data);
 
-  handleClose() {
-    this.isConnected = false;
-    this.trigger("disconnect");
-    this.reconnectTimer = setTimeout(() => this.connect(this.url), this.reconnectInterval);
+    console.log("TELEMETRY RECEIVED", payload);
+
+    this.trigger("telemetry", payload);
+
+  } catch (err) {
+    console.error("Socket message error:", err);
   }
+}
+
+handleClose() {
+  this.isConnected = false;
+  this.trigger("disconnect");
+  this.reconnectTimer = setTimeout(
+    () => this.connect(this.url),
+    this.reconnectInterval
+  );
+}
 
   handleError(e) {
     console.error("Socket error status:", e);

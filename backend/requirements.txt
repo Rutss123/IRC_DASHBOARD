@@ -1,0 +1,15 @@
+# ── Core framework ──────────────────────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1       # includes websockets + httptools for production
+
+# ── Validation ──────────────────────────────────────────────────────────────
+pydantic==2.10.3
+
+# ── WebSocket support (pulled in by uvicorn[standard] but explicit is safer) ─
+websockets==14.1
+
+# ── Async HTTP (useful for future Jetson health probes / outbound calls) ────
+httpx==0.28.0
+
+# ── CORS & serialization (included with FastAPI; pinned for reproducibility) ─
+python-multipart==0.0.20       # needed if you later add file/form upload

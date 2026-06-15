@@ -231,26 +231,36 @@ export default function CameraFrame({ camera, isMinified = false }) {
       {/* RENDER VIEWPORT FRAME */}
       <div className="relative w-full h-full flex-1 flex items-center justify-center overflow-hidden">
         {camera.status === 'online' ? (
-          <canvas ref={canvasRef} className="w-full h-full block" />
-        ) : camera.status === 'standby' ? (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-space-900 text-center font-mono">
-            <AlertTriangle className="w-6 h-6 text-cyber-orange animate-pulse mb-2" />
-            <div className="text-cyber-orange font-bold text-[9px] uppercase tracking-widest">
-              STREAM STANDBY
-            </div>
-            <span className="text-slate-500 text-[7px] mt-0.5">READY TO POLL</span>
-          </div>
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-space-950 text-center font-mono">
-            <AlertCircle className="w-6 h-6 text-cyber-red animate-bounce mb-2" />
-            <div className="text-cyber-red font-bold text-[9px] uppercase tracking-widest">
-              INGEST FAULT: OFFLINE
-            </div>
-            <span className="text-slate-500 text-[7px] mt-0.5">VERIFY HARDWARE DRIVER STATUS</span>
-          </div>
-        )}
-      </div>
+  <img
+    src="http://192.168.1.5:8080/video"
+    alt="Live Feed"
+    className="w-full h-full object-cover"
+  />
+) :camera.status === 'standby' ? (
+  <div className="w-full h-full flex flex-col items-center justify-center bg-space-900 text-center font-mono">
+    <AlertTriangle className="w-6 h-6 text-cyber-orange animate-pulse mb-2" />
+    <div className="text-cyber-orange font-bold text-[9px] uppercase tracking-widest">
+      STREAM STANDBY
+    </div>
+    <span className="text-slate-500 text-[7px] mt-0.5">
+      READY TO POLL
+    </span>
+  </div>
+) : (
+  <div className="w-full h-full flex flex-col items-center justify-center bg-space-950 text-center font-mono">
+    <AlertCircle className="w-6 h-6 text-cyber-red animate-bounce mb-2" />
+    <div className="text-cyber-red font-bold text-[9px] uppercase tracking-widest">
+      INGEST FAULT: OFFLINE
+    </div>
+    <span className="text-slate-500 text-[7px] mt-0.5">
+      VERIFY HARDWARE DRIVER STATUS
+    </span>
+  </div>
+)
+}
+ </div>
 
     </div>
   );
 }
+
