@@ -21,6 +21,7 @@ export const parseTelemetryPacket = (rawPacket) => {
         alt: data.gps?.alt || 920, // meters
         satellites: data.gps?.satellites || 12,
         lock: data.gps?.lock || "3D_FIX", // "NO_LOCK", "2D", "3D", "3D_FIX"
+        hdop: data.gps?.hdop || 0.82,
       },
       heading: data.heading ?? 0, // 0 to 359 degrees
       speed: data.speed ?? 0.0, // meters/sec

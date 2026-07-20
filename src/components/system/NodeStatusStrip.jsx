@@ -12,7 +12,7 @@ export default function NodeStatusStrip() {
   };
 
   const getNodeColor = (status) => {
-    if (status === 'healthy') return 'text-cyber-green border-cyber-green/20 bg-cyber-green/5';
+    if (status === 'healthy') return 'text-cyber-amber border-cyber-amber/20 bg-cyber-amber/5';
     if (status === 'warning') return 'text-cyber-orange border-cyber-orange/20 bg-cyber-orange/5';
     return 'text-cyber-red border-cyber-red/20 bg-cyber-red/5';
   };
@@ -25,7 +25,7 @@ export default function NodeStatusStrip() {
 
       {/* Left Label */}
       <div className="flex items-center gap-2">
-        <Layers className="w-4 h-4 text-cyber-cyan animate-pulse" />
+        <Layers className="w-4 h-4 text-cyber-amber animate-pulse" />
         <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">
           [SYSTEM_NODE_MATRIX]:
         </span>
@@ -81,8 +81,8 @@ export default function NodeStatusStrip() {
       </div>
 
       {/* Right status lock banner */}
-      <div className="hidden lg:flex items-center gap-1.5 border border-cyber-cyan/15 bg-cyber-cyan/5 text-cyber-cyan px-2 py-0.5 rounded text-[8px] font-bold">
-        <ShieldCheck className="w-3.5 h-3.5 text-cyber-cyan shrink-0" />
+      <div className="hidden lg:flex items-center gap-1.5 border border-cyber-amber/15 bg-cyber-amber/5 text-cyber-amber px-2 py-0.5 rounded text-[8px] font-bold">
+        <ShieldCheck className="w-3.5 h-3.5 text-cyber-amber shrink-0" />
         <span>NODE INTEGRITY: SAFE</span>
       </div>
 

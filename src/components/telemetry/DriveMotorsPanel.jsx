@@ -15,7 +15,7 @@ export default function DriveMotorsPanel() {
       <div className="absolute inset-0 grid-overlay opacity-[0.02] pointer-events-none" />
 
       {/* HEADER */}
-      <div className="flex justify-between items-center text-[10px] text-cyber-cyan/50 uppercase tracking-widest border-b border-space-800/60 pb-2 shrink-0">
+      <div className="flex justify-between items-center text-[10px] text-cyber-amber/60 uppercase tracking-widest border-b border-space-800/60 pb-2 shrink-0">
         <span>[06_DRIVE_MOTOR_DIAGS]</span>
         <span className="text-cyber-green text-[8.5px] font-bold tracking-wider">DRIVETRAIN_OK</span>
       </div>
@@ -35,7 +35,7 @@ export default function DriveMotorsPanel() {
                 <span>{motor.name}</span>
                 <div className="flex items-center gap-1">
                   <StatusLed status={motor.status} pulse={speed > 0} className="w-1.5 h-1.5" />
-                  <span className="text-cyber-green text-[7px] font-semibold">{motor.id}</span>
+                  <span className="text-cyber-amber text-[7px] font-semibold">{motor.id}</span>
                 </div>
               </div>
 

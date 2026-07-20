@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useRover } from '../context/RoverContext';
 import NodeStatusStrip from '../components/system/NodeStatusStrip';
 import SystemDiagnostics from '../components/system/SystemDiagnostics';
@@ -6,10 +6,8 @@ import GpsPanel from '../components/system/GpsPanel';
 import ImuPanel from '../components/telemetry/ImuPanel';
 import AnemometerPanel from '../components/telemetry/AnemometerPanel';
 import CameraFrame from '../components/video/CameraFrame';
-import Lidar3DPanel from '../components/telemetry/Lidar3DPanel';
 import DriveMotorsPanel from '../components/telemetry/DriveMotorsPanel';
 import ArmMotorsPanel from '../components/telemetry/ArmMotorsPanel';
-import SciencePanel from '../components/system/SciencePanel';
 import ActionBar from '../components/controls/ActionBar';
 
 /**
@@ -18,14 +16,25 @@ import ActionBar from '../components/controls/ActionBar';
  * 1. NodeStatusStrip: Horizontal heartbeat node strip.
  * 2. Main operator cockpit Area (cols-5 grid split):
  *    - Left Sidebar (col-span-1 / ~20%): Comms, GPS positioning, IMU horizon, and Anemometer.
- *    - Center Ingest Viewport (col-span-3 / ~60%): visually dominant Live Video and 3D Lidar perception mesh.
+ *    - Center Ingest Viewport (col-span-3 / ~60%): visually dominant Live Video.
  *    - Right Sidebar (col-span-1 / ~20%): 6 Drive wheels RPMs matrix, and 6-Axis manipulator angles.
- * 3. Environmental Science Panel: Modular atmospheric, gas, and soil arrays placed wide BELOW.
- * 4. ActionBar: Bottom docked controls.
+ * 3. ActionBar: Bottom docked controls.
  * Fully scrollable vertically.
  */
 export default function PrimaryOperatorView() {
-  const { activeCamera } = useRover();
+  const { activeCamera, cameras } = useRover();
+  const [secondaryCamId, setSecondaryCamId] = useState('arm_cam');
+
+  const secondaryOptions = [
+    { id: 'front_cam', name: 'Front Camera' },
+    { id: 'rear_cam', name: 'Rear Camera' },
+    { id: 'arm_cam', name: 'Arm Camera' },
+    { id: 'science_cam', name: 'Science Camera' },
+    { id: 'thermal_cam', name: 'Thermal Camera' },
+    { id: 'nav_cam', name: 'Navigation Camera' }
+  ];
+
+  const secondaryCamera = cameras.find(c => c.id === secondaryCamId) || cameras[2];
 
   return (
     <div className="w-full flex flex-col gap-4 font-mono select-none">
@@ -44,10 +53,34 @@ export default function PrimaryOperatorView() {
           <AnemometerPanel />
         </div>
 
-        {/* Center Live Video Viewport & Large 3D Lidar Perception (~60% width) */}
-        <div className="xl:col-span-3 w-full flex flex-col gap-4">
-          <CameraFrame camera={activeCamera} isMinified={false} />
-          <Lidar3DPanel />
+        {/* Center Live Video Viewports (~60% width) - Flexbox 50/50 fill layout */}
+        <div className="xl:col-span-3 w-full flex flex-col gap-3 self-stretch min-h-0">
+          {/* Primary Viewport (Dominant) */}
+          <CameraFrame 
+            camera={activeCamera} 
+            isMinified={false} 
+            className="flex-1" 
+          />
+
+          {/* Secondary Viewport (Equal Size 50/50) */}
+          <CameraFrame 
+            camera={secondaryCamera} 
+            isMinified={false} 
+            className="flex-1"
+            headerSelector={(
+              <select
+                value={secondaryCamId}
+                onChange={(e) => setSecondaryCamId(e.target.value)}
+                className="bg-[#060608]/90 text-cyber-amber border border-space-800 rounded px-1.5 py-0.5 focus:outline-none focus:border-cyber-amber cursor-pointer uppercase text-[8px] font-black font-mono ml-1"
+              >
+                {secondaryOptions.map(opt => (
+                  <option key={opt.id} value={opt.id} className="bg-space-950 text-slate-350 font-mono">
+                    ▼ {opt.name.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            )}
+          />
         </div>
 
         {/* Right Sidebar (col-span-1 / ~20% width) - motor drivetrain & robotic arm grids */}
@@ -58,10 +91,7 @@ export default function PrimaryOperatorView() {
 
       </div>
 
-      {/* 3. LABORATORY SCIENCE PANEL (wide layout BELOW main cockpit) */}
-      <SciencePanel />
-
-      {/* 4. DOCKED ACTIONS CONTROLS BAR */}
+      {/* 3. DOCKED ACTIONS CONTROLS BAR */}
       <ActionBar />
 
     </div>

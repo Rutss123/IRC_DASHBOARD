@@ -14,8 +14,8 @@ export default {
           700: '#1f293d', // Lighter graphite navy
         },
         cyber: {
-          amber: '#f59e0b',    // Primary operator orange/amber
-          orange: '#ea580c',   // Danger warnings
+          amber: '#D74E0B',    // Primary operator brand orange
+          orange: '#D74E0B',   // Primary brand orange accent
           cyan: '#06b6d4',     // Secondary cyan indicators
           green: '#10b981',    // Positive telemetry status
           red: '#ef4444',      // Critical fault alert
@@ -42,7 +42,7 @@ export default {
         }
       },
       boxShadow: {
-        'glow-amber': '0 0 15px -3px rgba(245, 158, 11, 0.3), 0 0 6px -2px rgba(245, 158, 11, 0.2)',
+        'glow-amber': '0 0 15px -3px rgba(215, 78, 11, 0.3), 0 0 6px -2px rgba(215, 78, 11, 0.2)',
         'glow-cyan': '0 0 15px -3px rgba(6, 182, 212, 0.3), 0 0 6px -2px rgba(6, 182, 212, 0.2)',
         'glow-green': '0 0 15px -3px rgba(16, 185, 129, 0.3), 0 0 6px -2px rgba(16, 185, 129, 0.2)',
         'glow-red': '0 0 15px -3px rgba(239, 68, 68, 0.3), 0 0 6px -2px rgba(239, 68, 68, 0.2)',

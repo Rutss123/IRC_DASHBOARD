@@ -10,17 +10,17 @@ export default function UniversoLogo({ className = "" }) {
   return (
     <div className={`flex items-center gap-3.5 select-none font-mono ${className}`}>
       
-      {/* 1. ORIGINAL UNIVERSO EMBLEM CROPPED CONTAINER */}
+      {/* 1. ORIGINAL UNIVERSO EMBLEM CONTAINER */}
       <div className="relative w-12 h-12 flex items-center justify-center shrink-0 group rounded-lg overflow-hidden border border-space-800 bg-[#020204] shadow-[0_0_12px_rgba(6,182,212,0.1)] hover:border-cyber-cyan/30 transition-all duration-300">
         
         {/* Glow backdrop overlay */}
         <div className="absolute inset-0 bg-cyber-cyan/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
         
-        {/* Exact crop of the emblem portion of the uploaded image */}
+        {/* Render the logo emblem centered, preserving aspect ratio */}
         <img 
           src={universoLogoImg} 
           alt="UNIVERSO Emblem" 
-          className="absolute top-0 left-0 w-full h-[155%] object-cover object-top transition-transform duration-500 group-hover:scale-[1.06]"
+          className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.06]"
         />
       </div>
 

@@ -10,7 +10,7 @@ export default function ArmMotorsPanel() {
 
   return (
     <div className="hud-panel p-3.5 border-space-800 bg-[#0b0f19]/30 relative overflow-hidden font-mono select-none flex flex-col gap-2.5">
-      
+
       {/* Mesh grid */}
       <div className="absolute inset-0 grid-overlay opacity-[0.02] pointer-events-none" />
 
@@ -49,9 +49,8 @@ export default function ArmMotorsPanel() {
               </div>
 
               {/* Encoder Status Badge */}
-              <span className={`text-[7px] font-bold border px-1 rounded-sm uppercase tracking-wide shrink-0 ${
-                joint.encoder === 'OK_SYNC' ? 'text-cyber-green border-cyber-green/20' : 'text-slate-500 border-space-800'
-              }`}>
+              <span className={`text-[7px] font-bold border px-1 rounded-sm uppercase tracking-wide shrink-0 ${joint.encoder === 'OK_SYNC' ? 'text-cyber-green border-cyber-green/20' : 'text-slate-500 border-space-800'
+                }`}>
                 {joint.encoder}
               </span>
             </div>

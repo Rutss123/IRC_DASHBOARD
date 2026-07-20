@@ -59,8 +59,8 @@ export default function GpsPanel() {
     ctx.stroke();
 
     // Waypoint target
-    ctx.fillStyle = 'rgba(234, 88, 12, 0.2)';
-    ctx.strokeStyle = '#ea580c';
+    ctx.fillStyle = 'rgba(215, 78, 11, 0.2)';
+    ctx.strokeStyle = '#D74E0B';
     ctx.beginPath();
     ctx.arc(centerX + 20, centerY - 10, 2, 0, Math.PI * 2);
     ctx.fill();
@@ -82,6 +82,23 @@ export default function GpsPanel() {
 
   }, [heading]);
 
+  // Helper to format lock values dynamically
+  const getFixDisplay = (lock) => {
+    if (!lock) return 'NO FIX';
+    const u = lock.toUpperCase();
+    if (u.includes('RTK')) return 'RTK';
+    if (u.includes('3D_FIX') || u === '3D') return '3D';
+    if (u.includes('2D_LOCK') || u === '2D') return '2D';
+    if (u.includes('NO_LOCK') || u.includes('NO_FIX')) return 'NO FIX';
+    return u.replace('_', ' ');
+  };
+
+  const fixVal = getFixDisplay(gps.lock);
+  const fixColor = 
+    fixVal === 'RTK' ? 'text-cyber-cyan' :
+    fixVal === '3D' ? 'text-cyber-cyan' :
+    fixVal === '2D' ? 'text-cyber-orange' : 'text-cyber-red';
+
   return (
     <div className="hud-panel p-3.5 border-space-800 bg-[#0b0f19]/30 relative overflow-hidden font-mono select-none flex flex-col gap-2.5">
       
@@ -89,51 +106,51 @@ export default function GpsPanel() {
       <div className="absolute inset-0 grid-overlay opacity-[0.02] pointer-events-none" />
 
       {/* HEADER */}
-      <div className="flex justify-between items-center text-[10px] text-cyber-cyan/50 uppercase tracking-widest border-b border-space-800/60 pb-2 shrink-0">
+      <div className="flex justify-between items-center text-[10px] text-cyber-amber/60 uppercase tracking-widest border-b border-space-800/60 pb-2 shrink-0">
         <span>[02_GPS_NAVIGATION]</span>
-        <div className="flex items-center gap-1.5 text-[8.5px] text-cyber-green font-bold">
+        <div className="flex items-center gap-1.5 text-[8.5px] text-cyber-cyan font-bold">
           <StatusLed status="healthy" pulse={false} className="w-1.5 h-1.5" />
           <span>{gps.lock}</span>
         </div>
       </div>
 
-      {/* Primary Coordinates Readout (OVERHAULED TYPOGRAPHY) */}
+      {/* Grid of 4 Cards (Top Row: Latitude, Longitude | Bottom Row: GPS Fix, HDOP Accuracy) */}
       <div className="grid grid-cols-2 gap-2 text-right shrink-0">
+        {/* LATITUDE */}
         <div className="p-2 bg-[#060608]/85 border border-space-850 rounded-lg flex flex-col justify-center">
           <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider text-left mb-0.5">LATITUDE</span>
           <span className="text-sm font-black text-slate-200">{gps.lat.toFixed(5)} <span className="text-[8px] font-normal text-slate-500">N</span></span>
         </div>
+        {/* LONGITUDE */}
         <div className="p-2 bg-[#060608]/85 border border-space-850 rounded-lg flex flex-col justify-center">
           <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider text-left mb-0.5">LONGITUDE</span>
           <span className="text-sm font-black text-slate-200">{gps.lng.toFixed(5)} <span className="text-[8px] font-normal text-slate-500">E</span></span>
         </div>
+        {/* GPS FIX */}
         <div className="p-2 bg-[#060608]/85 border border-space-850 rounded-lg flex flex-col justify-center">
-          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider text-left mb-0.5">ALTITUDE</span>
-          <span className="text-sm font-black text-cyber-cyan">{gps.alt} <span className="text-[8px] font-normal text-slate-500">m</span></span>
+          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider text-left mb-0.5">GPS FIX</span>
+          <span className={`text-sm font-black ${fixColor}`}>{fixVal}</span>
         </div>
+        {/* HDOP ACCURACY */}
         <div className="p-2 bg-[#060608]/85 border border-space-850 rounded-lg flex flex-col justify-center">
-          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider text-left mb-0.5">SATELLITES</span>
-          <span className="text-sm font-black text-cyber-amber">{gps.satellites} <span className="text-[8px] font-normal text-slate-500">SATS</span></span>
+          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider text-left mb-0.5">HDOP ACCURACY</span>
+          <span className="text-sm font-black text-cyber-cyan">{gps.hdop?.toFixed(2) || '0.82'} <span className="text-[8px] font-normal text-slate-500">({(gps.hdop || 0.82) < 1.0 ? '±1.2m' : '±3.5m'})</span></span>
         </div>
       </div>
 
       {/* Navigation detail parameters */}
       <div className="flex flex-col gap-1.5 text-[8.5px]">
         <div className="flex justify-between border-b border-space-900 pb-1">
-          <span className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">HDOP ACCURACY</span>
-          <span className="text-cyber-green font-black text-xs">0.82 (±1.2m)</span>
-        </div>
-        <div className="flex justify-between border-b border-space-900 pb-1">
           <span className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">GROUND SPEED</span>
           <span className="text-slate-200 font-black text-xs">{speed.toFixed(2)} m/s</span>
         </div>
         <div className="flex justify-between border-b border-space-900 pb-1">
-          <span className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">BEARING LOCK</span>
+          <span className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">HEADING (TRUE BEARING)</span>
           <span className="text-cyber-cyan font-black text-xs">{heading}° TRUE</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">UTC DATETIME</span>
-          <span className="text-slate-300 font-bold">{cardTime}</span>
+          <span className="text-slate-500 font-bold uppercase text-[9px] tracking-wider">UTC TIME</span>
+cyber-amber          <span className="text-slate-300 font-bold">{cardTime}</span>
         </div>
       </div>
 

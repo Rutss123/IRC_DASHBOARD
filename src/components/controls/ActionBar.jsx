@@ -39,7 +39,7 @@ export default function ActionBar() {
               disabled={roverMode === 'E-STOP'}
               value={activeCameraId}
               onChange={(e) => selectCamera(e.target.value)}
-              className="bg-space-950 border border-space-850 px-3 py-1.5 text-xs text-slate-200 rounded-lg outline-none cursor-pointer focus:border-cyber-cyan font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="bg-space-950 border border-space-850 px-3 py-1.5 text-xs text-slate-200 rounded-lg outline-none cursor-pointer focus:border-cyber-amber font-bold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {cameras.map(cam => (
                 <option key={cam.id} value={cam.id} className="bg-space-950 text-slate-200">
@@ -56,7 +56,7 @@ export default function ActionBar() {
         {isMultiCamPage ? (
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-cyber-cyan text-cyber-cyan bg-cyber-cyan/10 hover:bg-cyber-cyan/20 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-cyber-amber text-cyber-amber bg-cyber-amber/10 hover:bg-cyber-amber/20 transition-all"
           >
             <Video className="w-4 h-4" />
             PRIMARY OPERATOR
@@ -64,7 +64,7 @@ export default function ActionBar() {
         ) : (
           <button
             onClick={() => window.open('/multicam', '_blank')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-cyber-cyan text-cyber-cyan bg-cyber-cyan/10 hover:bg-cyber-cyan/20 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-cyber-amber text-cyber-amber bg-cyber-amber/10 hover:bg-cyber-amber/20 transition-all"
           >
             <Video className="w-4 h-4" />
             MULTI-CAM MATRIX

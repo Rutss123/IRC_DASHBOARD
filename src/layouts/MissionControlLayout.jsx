@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useRover } from '../context/RoverContext';
 import UniversoLogo from '../components/common/UniversoLogo';
 import { 
@@ -15,6 +16,7 @@ import {
 export default function MissionControlLayout({ children }) {
   const { telemetry, connectionStatus, roverMode, driverMode, setDriverMode } = useRover();
   const [utcTime, setUtcTime] = useState('');
+  const location = useLocation();
 
   // Clock in UTC format matching JPG: "YYYY-MM-DD HH:MM:SS UTC"
   useEffect(() => {
@@ -38,17 +40,71 @@ export default function MissionControlLayout({ children }) {
         <div className="absolute inset-0 grid-overlay opacity-[0.04] pointer-events-none" />
         
         {/* Sleek top-border indicator line */}
-        <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-cyber-cyan/30 to-transparent" />
+        <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-cyber-amber/30 to-transparent" />
         
         {/* Universo Logo & Sanskrit quote (Full Scale) */}
         <UniversoLogo className="relative z-10" />
+
+        {/* Center Workspace Navigation (Premium NASA/Mission-Control segment selector) */}
+        <nav className="relative z-10 hidden md:flex bg-space-950/80 p-0.5 border border-space-800/70 rounded-lg gap-0.5 items-center shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)] font-mono text-[8px] lg:text-[8.5px]">
+          <Link
+            to="/"
+            className={`px-3 py-1 rounded font-black uppercase tracking-wider transition-all duration-250 flex items-center gap-1.5 ${
+              location.pathname === '/' 
+                ? 'bg-cyber-amber/15 text-cyber-amber border border-cyber-amber/25 shadow-glow-amber/10' 
+                : 'text-slate-400 border border-transparent hover:text-slate-200'
+            }`}
+          >
+            <span>🚀</span> Operations
+          </Link>
+          <Link
+            to="/multicam"
+            className={`px-3 py-1 rounded font-black uppercase tracking-wider transition-all duration-250 flex items-center gap-1.5 ${
+              location.pathname === '/multicam' 
+                ? 'bg-cyber-amber/15 text-cyber-amber border border-cyber-amber/25 shadow-glow-amber/10' 
+                : 'text-slate-400 border border-transparent hover:text-slate-200'
+            }`}
+          >
+            <span>🎥</span> Multi Camera
+          </Link>
+          <Link
+            to="/science"
+            className={`px-3 py-1 rounded font-black uppercase tracking-wider transition-all duration-250 flex items-center gap-1.5 ${
+              location.pathname === '/science' 
+                ? 'bg-cyber-amber/15 text-cyber-amber border border-cyber-amber/25 shadow-glow-amber/10' 
+                : 'text-slate-400 border border-transparent hover:text-slate-200'
+            }`}
+          >
+            <span>🧪</span> Life Science
+          </Link>
+          <Link
+            to="/controller"
+            className={`px-3 py-1 rounded font-black uppercase tracking-wider transition-all duration-250 flex items-center gap-1.5 ${
+              location.pathname === '/controller' 
+                ? 'bg-cyber-amber/15 text-cyber-amber border border-cyber-amber/25 shadow-glow-amber/10' 
+                : 'text-slate-400 border border-transparent hover:text-slate-200'
+            }`}
+          >
+            <span>🎮</span> Controller
+          </Link>
+          <Link
+            to="/settings"
+            className={`px-3 py-1 rounded font-black uppercase tracking-wider transition-all duration-250 flex items-center gap-1.5 ${
+              location.pathname === '/settings' 
+                ? 'bg-cyber-amber/15 text-cyber-amber border border-cyber-amber/25 shadow-glow-amber/10' 
+                : 'text-slate-400 border border-transparent hover:text-slate-200'
+            }`}
+          >
+            <span>⚙️</span> Settings
+          </Link>
+        </nav>
 
         {/* Right Status Controls Bar */}
         <div className="relative z-10 flex items-center gap-3 font-mono text-[8px] md:text-[9px]">
 
           {/* Segmented Driver Mode Toggle (MANUAL vs AUTONOMOUS) */}
           <div className="flex bg-space-950/80 p-0.5 border border-space-800/70 rounded-lg gap-0.5 items-center mr-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]">
-            <span className="text-[7.5px] md:text-[8px] text-slate-500 font-bold uppercase tracking-wider px-2">DRIVE_MODE:</span>
+            <span className="text-[7.5px] md:text-[8px] text-slate-500 font-bold uppercase tracking-wider tracking-widest px-2">DRIVE_MODE:</span>
             <button
               onClick={() => setDriverMode('MANUAL')}
               className={`px-2.5 py-0.5 rounded font-black uppercase tracking-wider transition-all duration-200 text-[8px] ${
@@ -63,7 +119,7 @@ export default function MissionControlLayout({ children }) {
               onClick={() => setDriverMode('AUTONOMOUS')}
               className={`px-2.5 py-0.5 rounded font-black uppercase tracking-wider transition-all duration-200 text-[8px] ${
                 driverMode === 'AUTONOMOUS' 
-                  ? 'bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/25 shadow-glow-cyan/10' 
+                  ? 'bg-cyber-orange/15 text-cyber-orange border border-cyber-orange/25 shadow-glow-amber/10' 
                   : 'text-slate-500 hover:text-slate-300'
               }`}
             >
@@ -92,7 +148,7 @@ export default function MissionControlLayout({ children }) {
 
           {/* Clock: Date Time formatted */}
           <div className="hidden lg:flex items-center gap-1.5 border border-space-800/80 px-2.5 py-0.5 rounded bg-space-950/70 text-slate-300 shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]">
-            <Clock className="w-3 h-3 text-cyber-cyan shrink-0 animate-pulse-slow" />
+            <Clock className="w-3 h-3 text-cyber-amber shrink-0 animate-pulse-slow" />
             <span className="tracking-widest font-black select-all text-slate-200">{utcTime}</span>
           </div>
 
@@ -107,7 +163,7 @@ export default function MissionControlLayout({ children }) {
           <span>WARNING: SYSTEM OPERATES IN RESTRICTED CAPACITY. CHECK ACTIVE DIAGNOSTIC WARNING ALERTS</span>
         </div>
         <div className="text-slate-400 font-bold shrink-0">
-          RTT: <span className="text-cyber-green">48MS</span> // ESTOP: <span className="text-cyber-green">READY</span>
+          RTT: <span className="text-cyber-amber">48MS</span> // ESTOP: <span className="text-cyber-green">READY</span>
         </div>
       </section>
 

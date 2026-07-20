@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useRover } from '../../context/RoverContext';
 import { Camera, AlertCircle, AlertTriangle } from 'lucide-react';
 
-export default function CameraFrame({ camera, isMinified = false }) {
+export default function CameraFrame({ camera, isMinified = false, className = "", headerSelector = null }) {
   const { telemetry, roverMode } = useRover();
   const { speed, heading, gps } = telemetry;
   
@@ -167,7 +167,7 @@ export default function CameraFrame({ camera, isMinified = false }) {
     <div className={`relative w-full rounded-lg overflow-hidden bg-space-950 flex flex-col justify-between transition-all duration-300 ${
       isMinified 
         ? "h-48 border border-cyber-orange/40 hover:border-cyber-orange shadow-glow-amber/5" 
-        : "w-full h-[520px] border border-cyber-cyan/35 shadow-glow-cyan/5"
+        : `w-full ${className || "h-[520px]"} border border-cyber-amber/35 shadow-glow-amber/5`
     }`}>
       
       {/* 1. TOP BAR INFORMATION OVERLAY */}
@@ -177,7 +177,7 @@ export default function CameraFrame({ camera, isMinified = false }) {
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-1.5 text-slate-100 font-bold tracking-wider">
             <Camera className="w-4 h-4 text-cyber-orange shrink-0 animate-pulse" />
-            <span>{camera.name.toUpperCase()}</span>
+            {headerSelector ? headerSelector : <span>{camera.name.toUpperCase()}</span>}
           </div>
           <span className="text-[7.5px] text-slate-500 font-bold tracking-widest pl-5.5 uppercase">
             WEBRTC DOCK // PROFILE: {camera.resolution}
@@ -186,12 +186,19 @@ export default function CameraFrame({ camera, isMinified = false }) {
 
         {/* Right badging */}
         <div className="flex items-center bg-space-950/80 border border-space-850 px-2 py-1 rounded gap-3 text-[8.5px] text-slate-400 font-bold font-mono">
+          {camera.isRecording && (
+            <div className="flex items-center gap-1 text-cyber-red font-black animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyber-red" />
+              <span>REC</span>
+            </div>
+          )}
+          {camera.isRecording && <div className="w-[1px] h-2.5 bg-space-800" />}
           <div>
             FPS: <span className="text-cyber-orange font-bold">{camera.fps || 30}</span>
           </div>
           <div className="w-[1px] h-2.5 bg-space-800" />
           <div>
-            RTT: <span className="text-cyber-green font-bold">{camera.latency || 22}ms</span>
+            RTT: <span className="text-cyber-amber font-bold">{camera.latency || 22}ms</span>
           </div>
           <div className="w-[1px] h-2.5 bg-space-800" />
           <div className="flex items-center gap-1 text-cyber-red font-bold animate-pulse">
@@ -204,8 +211,8 @@ export default function CameraFrame({ camera, isMinified = false }) {
       {/* 2. FLOATING REAL-TIME WARNING & NOTIFICATION SYSTEMS */}
       
       {/* Top Center Mission Status Alert Badge */}
-      <div className="absolute top-3.5 left-1/2 -translate-x-1/2 z-20 bg-space-950/85 border border-cyber-cyan/35 text-cyber-cyan font-mono text-[8px] px-3.5 py-0.5 rounded-lg tracking-widest uppercase font-bold flex items-center gap-1.5 backdrop-blur-sm">
-        <span className="w-1 h-1 rounded-full bg-cyber-cyan animate-pulse shadow-glow-cyan" />
+      <div className="absolute top-3.5 left-1/2 -translate-x-1/2 z-20 bg-space-950/85 border border-cyber-amber/35 text-cyber-amber font-mono text-[8px] px-3.5 py-0.5 rounded-lg tracking-widest uppercase font-bold flex items-center gap-1.5 backdrop-blur-sm">
+        <span className="w-1 h-1 rounded-full bg-cyber-amber animate-pulse shadow-glow-amber" />
         <span>MISSION ACTIVE: ZONE B SURVEYING</span>
       </div>
 
@@ -231,11 +238,11 @@ export default function CameraFrame({ camera, isMinified = false }) {
       {/* RENDER VIEWPORT FRAME */}
       <div className="relative w-full h-full flex-1 flex items-center justify-center overflow-hidden">
         {camera.status === 'online' ? (
-  <img
-    src="http://192.168.1.5:8080/video"
-    alt="Live Feed"
+  <img    
+    src={camera.stream || "http://192.168.1.5:8080/video"}
+    alt={camera.name}
     className="w-full h-full object-cover"
-  />
+  />                
 ) :camera.status === 'standby' ? (
   <div className="w-full h-full flex flex-col items-center justify-center bg-space-900 text-center font-mono">
     <AlertTriangle className="w-6 h-6 text-cyber-orange animate-pulse mb-2" />

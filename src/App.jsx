@@ -5,6 +5,9 @@ import { useSimulatedRover } from './hooks/useSimulatedRover';
 import MissionControlLayout from './layouts/MissionControlLayout';
 import PrimaryOperatorView from './pages/PrimaryOperatorView';
 import MultiCameraControlView from './pages/MultiCameraControlView';
+import LifeScienceView from './pages/LifeScienceView';
+import ControllerView from './pages/ControllerView';
+import SettingsView from './pages/SettingsView';
 
 // Background driver trigger to update live state data loops
 const RoverSimulatorDriver = () => {
@@ -26,6 +29,15 @@ function App() {
             
             {/* Page 2 - Multi Camera Controls Matrix Dashboard */}
             <Route path="/multicam" element={<MultiCameraControlView />} />
+
+            {/* Page 3 - Dedicated Science Laboratory Telemetry */}
+            <Route path="/science" element={<LifeScienceView />} />
+
+            {/* Page 4 - Wireframe Joystick / Teleoperation Console */}
+            <Route path="/controller" element={<ControllerView />} />
+
+            {/* Page 5 - Config and Preferences settings Panel */}
+            <Route path="/settings" element={<SettingsView />} />
           </Routes>
         </MissionControlLayout>
       </Router>

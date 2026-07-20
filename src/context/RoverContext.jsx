@@ -51,7 +51,16 @@ const INITIAL_TELEMETRY = {
     soilP: 18,
     soilK: 35,
     soilPh: 6.8,
-    soilMoisture: 48
+    soilMoisture: 48,
+    // Expanded Science Ingest metrics
+    soilTemp: 22.4,
+    co2: 412,
+    h2s: 1.2,
+    uvIndex: 3.1,
+    light: 850,
+    radiation: 0.14,
+    sampleStatus: 'SECURED_CAROUSEL_3',
+    experimentStatus: 'SPECTROMETRY_ACTIVE'
   }
 };
 

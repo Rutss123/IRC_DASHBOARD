@@ -12,9 +12,9 @@ export default function ImuPanel() {
     <div className="hud-panel p-3.5 border-space-800 bg-[#0b0f19]/30 relative overflow-hidden font-mono select-none flex flex-col gap-2.5">
       
       {/* HEADER */}
-      <div className="flex justify-between items-center text-[10px] text-cyber-cyan/50 uppercase tracking-widest border-b border-space-800/60 pb-2 shrink-0">
+      <div className="flex justify-between items-center text-[10px] text-cyber-amber/60 uppercase tracking-widest border-b border-space-800/60 pb-2 shrink-0">
         <span>[03_IMU_ORIENTATION]</span>
-        <span className={`text-[8.5px] font-bold ${imu.stability === 'SECURE' ? 'text-cyber-green' : 'text-cyber-orange animate-pulse'}`}>
+        <span className={`text-[8.5px] font-bold ${imu.stability === 'SECURE' ? 'text-cyber-amber' : 'text-cyber-orange animate-pulse'}`}>
           {imu.stability}
         </span>
       </div>
@@ -40,12 +40,12 @@ export default function ImuPanel() {
           <svg className="w-full h-full absolute inset-0 pointer-events-none" viewBox="0 0 66 66">
             <g transform={`rotate(${-imu.roll} 33 33)`}>
               {/* Roll vector wings */}
-              <line x1="12" y1="33" x2="24" y2="33" stroke="#ea580c" strokeWidth="1" />
-              <line x1="42" y1="33" x2="54" y2="33" stroke="#ea580c" strokeWidth="1" />
+              <line x1="12" y1="33" x2="24" y2="33" stroke="#D74E0B" strokeWidth="1" />
+              <line x1="42" y1="33" x2="54" y2="33" stroke="#D74E0B" strokeWidth="1" />
               <polygon points="33,10 31,14 35,14" fill="#06b6d4" />
             </g>
             {/* Center reticle */}
-            <circle cx="33" cy="33" r="1.5" fill="#ea580c" />
+            <circle cx="33" cy="33" r="1.5" fill="#D74E0B" />
           </svg>
         </div>
 

@@ -10,7 +10,7 @@ export default function AnemometerPanel() {
     <div className="hud-panel p-3.5 border-space-800 bg-[#0b0f19]/30 relative overflow-hidden font-mono select-none flex flex-col gap-2.5">
       
       {/* SECTION HEADER */}
-      <div className="flex justify-between items-center text-[10px] text-cyber-cyan/50 uppercase tracking-widest border-b border-space-800/60 pb-2 shrink-0">
+      <div className="flex justify-between items-center text-[10px] text-cyber-amber/60 uppercase tracking-widest border-b border-space-800/60 pb-2 shrink-0">
         <span>[04_ANEMOMETER]</span>
         <span className={`text-[8.5px] font-bold ${wind.trend === 'STEADY' ? 'text-cyber-green' : 'text-cyber-orange animate-pulse'}`}>
           {wind.trend}
@@ -39,7 +39,7 @@ export default function AnemometerPanel() {
           >
             {/* Elegant vector wind pointer */}
             <path d="M16,2 L21,12 L17,10 L16,30 L15,10 L11,12 Z" fill="#06b6d4" opacity="0.85" />
-            <polygon points="16,2 14,8 18,8" fill="#ea580c" />
+            <polygon points="16,2 14,8 18,8" fill="#D74E0B" />
           </svg>
         </div>
 

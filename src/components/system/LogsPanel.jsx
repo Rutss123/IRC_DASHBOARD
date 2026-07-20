@@ -49,10 +49,10 @@ export default function LogsPanel() {
         };
       default:
         return {
-          border: 'border-l-4 border-l-cyber-cyan border-space-850',
-          bg: 'bg-cyber-cyan/5',
+          border: 'border-l-4 border-l-cyber-amber border-space-850',
+          bg: 'bg-cyber-amber/5',
           text: 'text-slate-200',
-          badge: 'bg-cyber-cyan/10 border-cyber-cyan/20 text-cyber-cyan',
+          badge: 'bg-cyber-amber/10 border-cyber-amber/20 text-cyber-amber',
           tag: '[INFO_NOMINAL]'
         };
     }
@@ -65,9 +65,9 @@ export default function LogsPanel() {
       <div className="absolute inset-0 grid-overlay opacity-[0.02] pointer-events-none" />
 
       {/* 1. AEROSPACE DIAGNOSTIC HEADER */}
-      <div className="flex flex-wrap justify-between items-center text-[10px] text-cyber-cyan/50 uppercase tracking-widest border-b border-space-800/70 pb-2 gap-3">
+      <div className="flex flex-wrap justify-between items-center text-[10px] text-cyber-amber/60 uppercase tracking-widest border-b border-space-800/70 pb-2 gap-3">
         <span className="flex items-center gap-2">
-          <Terminal className="w-4 h-4 text-cyber-cyan animate-pulse" />
+          <Terminal className="w-4 h-4 text-cyber-amber animate-pulse" />
           [08_AEROSPACE_DIAGNOSTICS_LOGS]
         </span>
 
@@ -93,7 +93,7 @@ export default function LogsPanel() {
 
           <div className="flex items-center gap-1">
             <span className="text-slate-500">STATE:</span>
-            <span className={roverMode === 'E-STOP' ? 'text-cyber-red' : 'text-cyber-cyan'}>{roverMode}</span>
+            <span className={roverMode === 'E-STOP' ? 'text-cyber-red' : 'text-cyber-amber'}>{roverMode}</span>
           </div>
         </div>
       </div>

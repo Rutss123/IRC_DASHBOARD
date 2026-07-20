@@ -6,7 +6,7 @@
 export const INITIAL_CAMERAS = [
   {
     id: "front_cam",
-    name: "Front Cam",
+    name: "Front Camera",
     type: "navigation",
     status: "online",
     fps: 30,
@@ -16,7 +16,7 @@ export const INITIAL_CAMERAS = [
   },
   {
     id: "rear_cam",
-    name: "Rear Cam",
+    name: "Rear Camera",
     type: "navigation",
     status: "online",
     fps: 30,
@@ -26,7 +26,7 @@ export const INITIAL_CAMERAS = [
   },
   {
     id: "arm_cam",
-    name: "Arm Cam",
+    name: "Arm Camera",
     type: "robotic",
     status: "online",
     fps: 60,
@@ -35,28 +35,8 @@ export const INITIAL_CAMERAS = [
     stream: null
   },
   {
-    id: "thermal_cam",
-    name: "Thermal Cam",
-    type: "robotic",
-    status: "online",
-    fps: 15,
-    latency: 42,
-    resolution: "640x480",
-    stream: null
-  },
-  {
-    id: "nav_cam",
-    name: "Navigation Cam",
-    type: "navigation",
-    status: "online",
-    fps: 30,
-    latency: 25,
-    resolution: "1920x1080",
-    stream: null
-  },
-  {
     id: "science_cam",
-    name: "Science Cam",
+    name: "Science Camera",
     type: "science",
     status: "online",
     fps: 30,
@@ -65,18 +45,38 @@ export const INITIAL_CAMERAS = [
     stream: null
   },
   {
-    id: "wheel_cam",
-    name: "Wheel Cam",
-    type: "auxiliary",
+    id: "thermal_cam",
+    name: "Thermal Camera",
+    type: "robotic",
     status: "online",
-    fps: 30,
-    latency: 29,
-    resolution: "1280x720",
+    fps: 15,
+    latency: 42,
+    resolution: "640x480",
     stream: null
   },
   {
-    id: "backup_cam",
-    name: "Backup Cam",
+    id: "microscopic_cam",
+    name: "Microscopic Camera",
+    type: "science",
+    status: "online",
+    fps: 20,
+    latency: 31,
+    resolution: "1600x1200",
+    stream: null
+  },
+  {
+    id: "nav_cam",
+    name: "Navigation Camera",
+    type: "navigation",
+    status: "online",
+    fps: 30,
+    latency: 25,
+    resolution: "1920x1080",
+    stream: null
+  },
+  {
+    id: "custom_cam",
+    name: "Custom Camera",
     type: "auxiliary",
     status: "standby",
     fps: 0,

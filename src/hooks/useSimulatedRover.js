@@ -6,6 +6,13 @@ import { useRover } from '../context/RoverContext';
  * comms status updates, and camera dynamic FPS/latency noise) to keep the layout active.
  */
 export const useSimulatedRover = (isActive = true) => {
+  let contextVal;
+  try {
+    contextVal = useRover();
+  } catch (err) {
+    return; // Safely bypass initialization during context setup or hot reload
+  }
+
   const { 
     roverMode, 
     addLog, 
@@ -13,7 +20,7 @@ export const useSimulatedRover = (isActive = true) => {
     cameras,
     setPrimaryComms,
     setSecondaryComms
-  } = useRover();
+  } = contextVal;
 
   // Mock messages lists to inject into the console
   const mockMessages = [
