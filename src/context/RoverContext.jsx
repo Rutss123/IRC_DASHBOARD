@@ -1,7 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { INITIAL_CAMERAS } from '../services/cameras';
-import { parseTelemetryPacket } from '../services/telemetry';
-import { socketManager } from '../services/socket';
 
 const RoverContext = createContext(null);
 
@@ -73,10 +71,10 @@ export const RoverProvider = ({ children }) => {
   const [multiCamLayout, setMultiCamLayout] = useState('grid');
   
   // Camera array state
-  const [cameras, setCameras] = useState(INITIAL_CAMERAS);
+  const [cameras, setCameras] = useState(INITIAL_CAMERAS || []);
   const [activeCameraId, setActiveCameraId] = useState('front_cam');
   
-  // Operational logs (Shortened list by default)
+  // Operational logs
   const [logs, setLogs] = useState([
     { id: 1, timestamp: new Date(Date.now() - 400000).toISOString(), level: 'SUCCESS', node: 'SYSTEM', message: 'Mission control telemetry node bootstrapped' },
     { id: 2, timestamp: new Date(Date.now() - 250000).toISOString(), level: 'INFO', node: 'JETSON', message: 'Jetson Nano AI core initialized. CUDA support active.' },
@@ -86,17 +84,10 @@ export const RoverProvider = ({ children }) => {
 
   // Unified dynamic telemetry state
   const [telemetry, setTelemetry] = useState(INITIAL_TELEMETRY);
-  const [telemetryLog, setTelemetryLog] = useState(() => {
-  const saved = localStorage.getItem("telemetryLog");
-  return saved ? JSON.parse(saved) : [];
-});
 
-  // Centralized high-fidelity telemetry background simulation loop
-  // Connect to FastAPI WebSocket
-
-
-  // Derived active camera object
-  const activeCamera = cameras.find(c => c.id === activeCameraId) || cameras[0];
+  const activeCamera = (cameras && cameras.length > 0) 
+    ? (cameras.find(c => c.id === activeCameraId) || cameras[0]) 
+    : null;
 
   // Helper to add logs to system console
   const addLog = useCallback((message, level = 'INFO', node = 'SYSTEM') => {
@@ -108,7 +99,7 @@ export const RoverProvider = ({ children }) => {
         node: node.toUpperCase(),
         message
       },
-      ...prev.slice(0, 49) // Keep buffer short
+      ...prev.slice(0, 49)
     ]);
   }, []);
 
@@ -122,7 +113,6 @@ export const RoverProvider = ({ children }) => {
     setRoverMode(mode);
     addLog(`System mode transition: ${roverMode} -> ${mode}`, 'SUCCESS', 'SYS');
 
-    // Auto camera select based on mode
     if (mode === 'NAV') {
       setActiveCameraId('front_cam');
       addLog('Auto-switched active camera to Front Cam (NAV Mode)', 'INFO', 'CAM');
@@ -156,72 +146,77 @@ export const RoverProvider = ({ children }) => {
   }, [addLog]);
 
   const selectCamera = useCallback((camId) => {
-    const camExists = cameras.some(c => c.id === camId);
-    if (camExists) {
+    if (cameras && cameras.some(c => c.id === camId)) {
       setActiveCameraId(camId);
       addLog(`Active stream redirected: ${camId}`, 'INFO', 'CAM');
     }
   }, [cameras, addLog]);
 
-  const updateTelemetry = useCallback((data) => {
-    const parsed = parseTelemetryPacket(data);
-    if (parsed) {
-
-  // Update live telemetry
-  setTelemetry(prev => ({
-    ...prev,
-    ...parsed,
-    battery: parsed.battery ? { ...prev.battery, ...parsed.battery } : prev.battery,
-    gps: parsed.gps ? { ...prev.gps, ...parsed.gps } : prev.gps,
-    motorTemp: parsed.motorTemp ? { ...prev.motorTemp, ...parsed.motorTemp } : prev.motorTemp,
-    network: parsed.network ? { ...prev.network, ...parsed.network } : prev.network,
-    nodes: parsed.nodes ? { ...prev.nodes, ...parsed.nodes } : prev.nodes,
-    driveMotors: parsed.driveMotors !== undefined ? parsed.driveMotors : prev.driveMotors,
-    armMotors: parsed.armMotors !== undefined ? parsed.armMotors : prev.armMotors,
-    science: parsed.science !== undefined ? parsed.science : prev.science,
-    imu: parsed.imu !== undefined ? parsed.imu : prev.imu,
-    anemometer: parsed.anemometer !== undefined ? parsed.anemometer : prev.anemometer,
-  }));
-
-  // Save history (last 100 packets)
-  const history = JSON.parse(
-    localStorage.getItem("telemetryHistory") || "[]"
-  );
-
-  history.unshift({
-    timestamp: parsed.timestamp,
-    gps: parsed.gps,
-    battery: parsed.battery,
-    heading: parsed.heading,
-    speed: parsed.speed
-  });
-
-  localStorage.setItem(
-    "telemetryHistory",
-    JSON.stringify(history.slice(0, 100))
-  );
-}
-  }, []);
-
-  useEffect(() => {
-  socketManager.connect("ws://127.0.0.1:8000/ws/telemetry");
-
-  socketManager.addEventListener("telemetry", updateTelemetry);
-
-  return () => {
-    socketManager.removeEventListener(
-      "telemetry",
-      updateTelemetry
-    );
-    socketManager.disconnect();
-  };
-}, [updateTelemetry]);
-
-
-  
-
   const updateCameraStatus = useCallback((camId, updates) => {
     setCameras(prev => prev.map(c => c.id === camId ? { ...c, ...updates } : c));
+  }, []);
+
+  // WEBSOCKET TELEMETRY CONNECTION
+  const wsRef = useRef(null);
+
+  useEffect(() => {
+    let reconnectTimeout = null;
+
+    const connectWebSocket = () => {
+      const wsUrl = 'ws://127.0.0.1:8000/ws/telemetry';
+      console.log(`Connecting to Telemetry WebSocket: ${wsUrl}`);
+      
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        console.log('Telemetry WebSocket connected.');
+        setConnectionStatus('connected');
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const rawPayload = JSON.parse(event.data);
+          const parsed = rawPayload.data ? rawPayload.data : rawPayload;
+
+          if (parsed) {
+            setTelemetry(prev => ({
+              ...prev,
+              ...parsed,
+              battery: parsed.battery ? { ...prev.battery, ...parsed.battery } : prev.battery,
+              gps: parsed.gps ? { ...prev.gps, ...parsed.gps } : prev.gps,
+              network: parsed.network ? { ...prev.network, ...parsed.network } : prev.network,
+              nodes: parsed.nodes ? { ...prev.nodes, ...parsed.nodes } : prev.nodes,
+              driveMotors: parsed.driveMotors !== undefined ? parsed.driveMotors : prev.driveMotors,
+              armMotors: parsed.armMotors !== undefined ? parsed.armMotors : prev.armMotors,
+              science: parsed.science !== undefined ? parsed.science : prev.science,
+              imu: parsed.imu !== undefined ? parsed.imu : prev.imu,
+              anemometer: parsed.anemometer !== undefined ? parsed.anemometer : prev.anemometer,
+            }));
+          }
+        } catch (err) {
+          console.error('Failed to parse WebSocket frame:', err);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('Telemetry WebSocket error:', error);
+      };
+
+      ws.onclose = () => {
+        setConnectionStatus('disconnected');
+        reconnectTimeout = setTimeout(() => {
+          connectWebSocket();
+        }, 2000);
+      };
+    };
+
+    connectWebSocket();
+
+    return () => {
+      if (wsRef.current) wsRef.current.close();
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+    };
   }, []);
 
   return (
@@ -247,7 +242,6 @@ export const RoverProvider = ({ children }) => {
       setLogs,
       addLog,
       telemetry,
-      updateTelemetry,
       multiCamLayout,
       setMultiCamLayout
     }}>
