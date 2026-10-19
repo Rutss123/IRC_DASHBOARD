@@ -1,64 +1,83 @@
 import React from 'react';
 import { useRover } from '../../context/RoverContext';
+import BentoCard from '../common/BentoCard';
 import StatusLed from '../common/StatusLed';
 
-export default function ArmMotorsPanel() {
+const DEFAULT_JOINTS = [
+  { name: 'J1_BASE_YAW', angle: 0, rpm: 0, direction: 'IDLE', encoder: 'OK_SYNC' },
+  { name: 'J2_SHLDR_PITCH', angle: 0, rpm: 0, direction: 'IDLE', encoder: 'OK_SYNC' },
+  { name: 'J3_ELBOW_PITCH', angle: 0, rpm: 0, direction: 'IDLE', encoder: 'OK_SYNC' },
+  { name: 'J4_WRIST_PITCH', angle: 0, rpm: 0, direction: 'IDLE', encoder: 'OK_SYNC' },
+  { name: 'J5_WRIST_ROLL', angle: 0, rpm: 0, direction: 'IDLE', encoder: 'OK_SYNC' },
+  { name: 'J6_GRIPPER', angle: 0, rpm: 0, direction: 'IDLE', encoder: 'N/A' }
+];
+
+export default function ArmMotorsPanel({ onResizePreset }) {
   const { roverMode, telemetry = {} } = useRover();
-  const joints = telemetry.armMotors || [];
+  const joints =
+    telemetry.armMotors && telemetry.armMotors.length > 0
+      ? telemetry.armMotors
+      : DEFAULT_JOINTS;
 
-
+  const isArmMode = roverMode === 'ARM';
 
   return (
-    <div className="hud-panel p-3.5 border-space-800 bg-[#0b0f19]/30 relative overflow-hidden font-mono select-none flex flex-col gap-2.5">
-      
-      {/* Mesh grid */}
-      <div className="absolute inset-0 grid-overlay opacity-[0.02] pointer-events-none" />
-
-      {/* HEADER */}
-      <div className="flex justify-between items-center text-[10px] text-cyber-cyan/50 uppercase tracking-widest border-b border-space-800/60 pb-2 shrink-0">
-        <span>[07_ROBOTIC_ARM_TELEM]</span>
-        <span className={`text-[8.5px] font-bold ${roverMode === 'ARM' ? 'text-cyber-cyan animate-pulse' : 'text-slate-500'}`}>
-          {roverMode === 'ARM' ? 'PRECISION_LOCK' : 'STANDBY'}
-        </span>
-      </div>
-
-      {/* Stacked Joints List (OVERHAULED TYPOGRAPHY) */}
-      <div className="flex flex-col gap-2 text-[8.5px]">
+    <BentoCard
+      title="Manipulator Arm"
+      subtitle="[04_ARM]"
+      badge={isArmMode ? 'ARM ACTIVE' : 'STANDBY'}
+      badgeColor={isArmMode ? 'cyan' : 'slate'}
+      isStale={telemetry.is_stale}
+      className="h-full"
+      onResizePreset={onResizePreset}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-[8px] h-full overflow-y-auto pr-0.5">
         {joints.map((joint) => {
+          const angle = Number(joint.angle ?? 0);
+          const rpm = joint.rpm ?? 0;
+          const dir = joint.direction || 'IDLE';
+
           return (
-            <div key={joint.name} className="bg-[#060608]/85 border border-space-850 rounded p-2 flex items-center justify-between gap-3">
-              {/* Joint name and indicator */}
-              <div className="flex items-center gap-2 shrink-0 w-24">
-                <StatusLed status={joint.direction !== 'IDLE' ? 'active' : 'online'} pulse={joint.direction !== 'IDLE'} className="w-1 h-1" />
-                <span className="font-bold text-slate-350 tracking-tight text-[8px]">{joint.name}</span>
+            <div
+              key={joint.name}
+              className="bg-[#060810]/90 border border-slate-800/80 rounded p-1.5 flex flex-col justify-between gap-1 shrink-0"
+            >
+              <div className="flex items-center justify-between border-b border-slate-850 pb-1">
+                <span className="font-bold text-slate-300 truncate text-[7.5px]">{joint.name}</span>
+                <StatusLed
+                  status={dir !== 'IDLE' ? 'active' : 'online'}
+                  pulse={dir !== 'IDLE'}
+                  className="w-1.5 h-1.5 shrink-0"
+                />
               </div>
 
-              {/* Angle & velocity indicators */}
-              <div className="flex-1 flex justify-around items-center text-[8px] text-slate-500 gap-2">
-                <div>
-                  ANGLE: <span className="text-xs font-black text-cyber-cyan">{joint.angle > 0 ? '+' : ''}{joint.angle}°</span>
-                </div>
-                <div>
-                  RPM: <span className="text-xs font-black text-slate-200">{joint.rpm}</span>
-                </div>
-                <div>
-                  DIR: <span className={`text-[8px] font-black ${joint.direction === 'POS' ? 'text-cyber-green' : joint.direction === 'NEG' ? 'text-cyber-orange' : 'text-slate-500'}`}>
-                    {joint.direction}
-                  </span>
-                </div>
+              <div className="flex justify-between items-baseline text-slate-500 text-[8px]">
+                <span>ANGLE:</span>
+                <span className="text-xs font-black text-cyan-400">
+                  {angle > 0 ? '+' : ''}
+                  {angle.toFixed(1)}°
+                </span>
               </div>
 
-              {/* Encoder Status Badge */}
-              <span className={`text-[7px] font-bold border px-1 rounded-sm uppercase tracking-wide shrink-0 ${
-                joint.encoder === 'OK_SYNC' ? 'text-cyber-green border-cyber-green/20' : 'text-slate-500 border-space-800'
-              }`}>
-                {joint.encoder}
-              </span>
+              <div className="flex justify-between items-baseline text-slate-500 text-[8px]">
+                <span>SPEED:</span>
+                <span className="text-xs font-black text-slate-200">{rpm} RPM</span>
+              </div>
+
+              <div className="flex justify-between items-center pt-0.5 border-t border-slate-900 text-[7px]">
+                <span
+                  className={`font-black ${
+                    dir === 'POS' ? 'text-emerald-400' : dir === 'NEG' ? 'text-amber-500' : 'text-slate-500'
+                  }`}
+                >
+                  DIR: {dir}
+                </span>
+                <span className="text-slate-500">{joint.encoder || 'SYNC'}</span>
+              </div>
             </div>
           );
         })}
       </div>
-
-    </div>
+    </BentoCard>
   );
 }

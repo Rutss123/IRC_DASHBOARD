@@ -1,35 +1,44 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { RoverProvider } from './context/RoverContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { useSimulatedRover } from './hooks/useSimulatedRover';
 import MissionControlLayout from './layouts/MissionControlLayout';
 import PrimaryOperatorView from './pages/PrimaryOperatorView';
+import RoboticArmView from './pages/RoboticArmView';
+import LifeScienceView from './pages/LifeScienceView';
 import MultiCameraControlView from './pages/MultiCameraControlView';
 
-// Background driver trigger to update live state data loops
 const RoverSimulatorDriver = () => {
-  useSimulatedRover(true);
+  const isSimulationEnabled = import.meta.env.VITE_ENABLE_SIMULATION === 'true';
+  useSimulatedRover(isSimulationEnabled);
   return null;
 };
 
 function App() {
   return (
-    <RoverProvider>
-      {/* Background Simulation Loop Trigger */}
-      <RoverSimulatorDriver />
-      
-      <Router>
+    <ThemeProvider>
+      <RoverProvider>
+        <RoverSimulatorDriver />
+        <Router>
         <MissionControlLayout>
           <Routes>
-            {/* Page 1 - Primary Operator driving telemetry Viewport */}
+            {/* Tab 1 - Primary Cockpit HUD (Driving & Nav) */}
             <Route path="/" element={<PrimaryOperatorView />} />
-            
-            {/* Page 2 - Multi Camera Controls Matrix Dashboard */}
+
+            {/* Tab 2 - Dedicated Manipulator & Arm Control */}
+            <Route path="/arm" element={<RoboticArmView />} />
+
+            {/* Tab 3 - Dedicated Environmental & Life Science Laboratory */}
+            <Route path="/science" element={<LifeScienceView />} />
+
+            {/* Tab 4 - Full Multi-Camera Matrix Deck */}
             <Route path="/multicam" element={<MultiCameraControlView />} />
           </Routes>
         </MissionControlLayout>
       </Router>
     </RoverProvider>
+  </ThemeProvider>
   );
 }
 

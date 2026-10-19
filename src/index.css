@@ -1,15 +1,101 @@
+@import "react-grid-layout/css/styles.css";
+@import "react-resizable/css/styles.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* THEME 1: ARTEMIS MISSION CONTROL (Deep Space Navy / Cyan Ice) */
+:root, [data-theme="artemis"] {
+  --color-bg-base: #060913;
+  --color-card-bg: rgba(9, 14, 28, 0.88);
+  --color-card-header: rgba(6, 10, 20, 0.75);
+  --color-card-border: rgba(51, 65, 85, 0.6);
+  --color-card-border-hover: rgba(6, 182, 212, 0.5);
+  --color-accent: #06b6d4;
+  --color-accent-text: #22d3ee;
+  --color-accent-bg: rgba(6, 182, 212, 0.15);
+  --color-accent-border: rgba(6, 182, 212, 0.45);
+  --theme-font-sans: 'Space Grotesk', 'Inter', sans-serif;
+  --theme-font-mono: 'JetBrains Mono', monospace;
+  --body-bg: #060913;
+  --body-radial: radial-gradient(circle at 50% 15%, rgba(6, 182, 212, 0.12) 0%, transparent 60%);
+  --grid-line: rgba(6, 182, 212, 0.04);
+  --glow-accent: 0 0 15px rgba(6, 182, 212, 0.25);
+}
+
+/* THEME 2: ARRAKIS EXPEDITION (Mars Desert Field / Solar Amber) */
+[data-theme="arrakis"] {
+  --color-bg-base: #0c0b09;
+  --color-card-bg: rgba(20, 18, 16, 0.92);
+  --color-card-header: rgba(14, 12, 10, 0.85);
+  --color-card-border: rgba(87, 83, 78, 0.65);
+  --color-card-border-hover: rgba(245, 158, 11, 0.6);
+  --color-accent: #f59e0b;
+  --color-accent-text: #fbbf24;
+  --color-accent-bg: rgba(245, 158, 11, 0.18);
+  --color-accent-border: rgba(245, 158, 11, 0.5);
+  --theme-font-sans: 'Rajdhani', 'Outfit', sans-serif;
+  --theme-font-mono: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  --body-bg: #0c0b09;
+  --body-radial: radial-gradient(circle at 50% 15%, rgba(245, 158, 11, 0.12) 0%, transparent 60%);
+  --grid-line: rgba(245, 158, 11, 0.05);
+  --glow-accent: 0 0 15px rgba(245, 158, 11, 0.25);
+}
+
+/* THEME 3: STEALTH MFD (Fighter Cockpit / Avionics Phosphor Green & Pure OLED Black) */
+[data-theme="stealth"] {
+  --color-bg-base: #000000;
+  --color-card-bg: rgba(9, 9, 11, 0.96);
+  --color-card-header: rgba(4, 4, 5, 0.96);
+  --color-card-border: rgba(39, 39, 42, 0.85);
+  --color-card-border-hover: rgba(34, 197, 94, 0.65);
+  --color-accent: #22c55e;
+  --color-accent-text: #4ade80;
+  --color-accent-bg: rgba(34, 197, 94, 0.16);
+  --color-accent-border: rgba(34, 197, 94, 0.45);
+  --theme-font-sans: 'Inter', sans-serif;
+  --theme-font-mono: 'JetBrains Mono', monospace;
+  --body-bg: #000000;
+  --body-radial: radial-gradient(circle at 50% 15%, rgba(34, 197, 94, 0.08) 0%, transparent 60%);
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --glow-accent: 0 0 15px rgba(34, 197, 94, 0.25);
+}
+
+/* Tactical Custom styling for react-resizable handle */
+.react-resizable-handle {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  bottom: 2px;
+  right: 2px;
+  cursor: se-resize;
+  background-image: radial-gradient(circle, var(--color-accent) 1.5px, transparent 1.5px);
+  background-size: 5px 5px;
+  background-position: bottom right;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  z-index: 30;
+}
+.react-resizable-handle:hover {
+  opacity: 1;
+}
+.react-grid-item.react-grid-placeholder {
+  background: var(--color-accent-bg) !important;
+  border: 1.5px dashed var(--color-accent) !important;
+  border-radius: 1.25rem !important;
+  transition-duration: 100ms;
+  z-index: 2;
+}
+
 @layer base {
   body {
-    @apply bg-space-950 text-slate-100 font-sans selection:bg-cyber-amber selection:text-space-950 antialiased overflow-x-hidden;
-    background-color: #060608;
+    @apply text-slate-100 font-sans antialiased overflow-x-hidden transition-colors duration-300;
+    background-color: var(--body-bg);
     background-image: 
-      radial-gradient(circle at 50% 20%, rgba(11, 19, 43, 0.15) 0%, transparent 60%),
-      linear-gradient(rgba(18, 24, 38, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(18, 24, 38, 0.05) 1px, transparent 1px);
+      var(--body-radial),
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 100% 100%, 24px 24px, 24px 24px;
   }
 

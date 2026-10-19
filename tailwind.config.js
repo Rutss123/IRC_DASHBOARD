@@ -7,6 +7,17 @@ export default {
   theme: {
     extend: {
       colors: {
+        theme: {
+          base: 'var(--color-bg-base)',
+          card: 'var(--color-card-bg)',
+          header: 'var(--color-card-header)',
+          border: 'var(--color-card-border)',
+          'border-hover': 'var(--color-card-border-hover)',
+          accent: 'var(--color-accent)',
+          'accent-text': 'var(--color-accent-text)',
+          'accent-bg': 'var(--color-accent-bg)',
+          'accent-border': 'var(--color-accent-border)',
+        },
         space: {
           950: '#060608', // Matte black base
           900: '#0b0f19', // Deep navy/dark graphite
@@ -23,8 +34,8 @@ export default {
         }
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Fira Code', 'Share Tech Mono', 'ui-monospace', 'monospace'],
-        sans: ['Inter', 'Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['var(--theme-font-mono, "JetBrains Mono")', 'JetBrains Mono', 'Share Tech Mono', 'ui-monospace', 'monospace'],
+        sans: ['var(--theme-font-sans, "Inter")', 'Space Grotesk', 'Rajdhani', 'Inter', 'Outfit', 'sans-serif'],
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

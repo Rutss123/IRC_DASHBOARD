@@ -2,18 +2,21 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from models.telemetry import HealthResponse
+from config import settings
+from core.broadcaster import broadcaster
+from core.mission_logger import mission_logger
+from core.state_manager import state_manager
+from ingestion.udp_server import udp_ingestor
+from routers.cameras import router as cameras_router
+from routers.commands import router as commands_router
+from routers.health import router as health_router
 from routers.telemetry import router as telemetry_router
-
-from services.telemetry_service import telemetry_service
-from services.jetson_udp_listener import run_udp_listener
-from websocket.websocket_manager import connection_manager
+from services.mediamtx_discovery import mediamtx_discovery
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -22,76 +25,83 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("mission_control")
+
 
 # ---------------------------------------------------------------------------
-# Background: broadcast loop
+# Background Broadcast Loop
 # ---------------------------------------------------------------------------
-
 async def _broadcast_loop() -> None:
     """
-    Runs forever. Wakes up whenever TelemetryService receives a new packet 
-    via UDP and broadcasts it to all connected WebSocket clients as JSON.
+    Periodic WebSocket broadcast loop.
+    Wakes up when new telemetry arrives or after a short timeout to refresh staleness.
     """
-    logger.info("Broadcast loop started.")
+    logger.info("WebSocket telemetry broadcast loop started.")
+    interval = 1.0 / max(1.0, settings.BROADCAST_RATE_HZ)
 
     while True:
-        # Wakes up automatically when telemetry_service.update_telemetry() is called
-        snapshot = await telemetry_service.wait_for_update()
+        try:
+            # Wait for fresh packet or timeout
+            snapshot = await state_manager.wait_for_update(timeout=interval)
 
-        if snapshot is None:
-            continue
+            if broadcaster.client_count > 0:
+                payload = snapshot.model_dump()
+                await broadcaster.broadcast(payload)
 
-        # Convert Pydantic snapshot model to dict/JSON
-        payload = snapshot.model_dump()
+            await asyncio.sleep(interval)
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logger.debug("Broadcast loop cycle error: %s", e)
+            await asyncio.sleep(0.05)
 
-        # Send to all connected React clients
-        await connection_manager.broadcast(payload)
 
 # ---------------------------------------------------------------------------
-# Lifespan Context Manager
+# Lifespan Supervisor
 # ---------------------------------------------------------------------------
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Start background UDP listener and WS broadcast tasks on startup."""
-    logger.info("Starting Mars Rover backend …")
+    """Supervised startup and shutdown of backend tasks and hardware listeners."""
+    logger.info("Initializing Rover Mission Control Backend...")
 
-    # Start Jetson UDP Receiver Task on Port 9000
-    udp_task = asyncio.create_task(
-        run_udp_listener(),
-        name="jetson_udp_listener"
+    # 1. Start UDP Telemetry Receiver
+    await udp_ingestor.start()
+
+    # 2. Start MediaMTX Camera Stream Discovery
+    await mediamtx_discovery.start()
+
+    # 3. Start WebSocket Broadcast Task
+    broadcast_task = asyncio.create_task(_broadcast_loop(), name="ws_broadcast_loop")
+
+    logger.info(
+        "Backend operational. UDP Ingest on :%d | Command uplink target: %s:%d",
+        settings.UDP_INGEST_PORT,
+        settings.COMMAND_HOST,
+        settings.COMMAND_PORT,
     )
-    
-    # Start WebSocket Broadcast Task
-    broadcast_task = asyncio.create_task(
-        _broadcast_loop(), 
-        name="ws_broadcast"
-    )
+    yield
 
-    logger.info("Jetson UDP listener (Port 9000) and WS broadcast loop running.")
-    yield  # Application executes here
-
-    # Shutdown procedure
-    logger.info("Shutting down backend tasks…")
-    udp_task.cancel()
+    # Shutdown sequence
+    logger.info("Shutting down mission control tasks...")
     broadcast_task.cancel()
-    
     try:
-        await asyncio.gather(udp_task, broadcast_task, return_exceptions=True)
-    except Exception:
+        await broadcast_task
+    except asyncio.CancelledError:
         pass
-    logger.info("Backend shut down cleanly.")
+
+    await mediamtx_discovery.stop()
+    await udp_ingestor.stop()
+    mission_logger.close()
+    logger.info("Backend shutdown complete.")
 
 
 # ---------------------------------------------------------------------------
-# App Factory
+# FastAPI Application
 # ---------------------------------------------------------------------------
-
 app = FastAPI(
     title="Mars Rover Mission Control API",
-    description="Real-time telemetry backend for the IRC Mars Rover dashboard.",
-    version="1.0.0",
+    description="Modular telemetry, video stream discovery, and command backend for IRC Ground Station.",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
@@ -106,27 +116,10 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 # Routers
 # ---------------------------------------------------------------------------
-
+app.include_router(health_router)
 app.include_router(telemetry_router)
-
-
-# ---------------------------------------------------------------------------
-# Health Endpoint
-# ---------------------------------------------------------------------------
-
-_start_time = time.monotonic()
-
-
-@app.get("/health", response_model=HealthResponse, tags=["Health"])
-async def health_check() -> HealthResponse:
-    """Lightweight liveness probe."""
-    return HealthResponse(
-        status="ok",
-        uptime_seconds=round(time.monotonic() - _start_time, 2),
-        connected_clients=connection_manager.client_count,
-        simulator_running=False,
-        telemetry_hz=20,
-    )
+app.include_router(cameras_router)
+app.include_router(commands_router)
 
 
 if __name__ == "__main__":
@@ -136,6 +129,6 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=8000,
-        reload=True,
+        reload=False,
         log_level="info",
     )
