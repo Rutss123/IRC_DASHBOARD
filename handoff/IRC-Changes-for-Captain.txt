@@ -1,0 +1,154 @@
+IRC ROVER DASHBOARD - DETAILED CHANGE HANDOFF
+Prepared: 20 November 2026
+
+REPOSITORY AND PACKAGE
+
+Repository: https://github.com/Rutss123/IRC_DASHBOARD
+Source branch: feature/mikrotik-https-integration
+Saved-change base: 8b3f02f - feat: update mission control dashboard UI
+Package: IRC-handoff.zip
+
+The ZIP contains changed files for review, not a complete repository.
+dashboard/ preserves paths relative to the repository root. bench/ contains
+local video test scripts and configuration. Compare the dashboard files
+with the target branch before applying changes. No upload, commit, merge or
+push was performed in preparing this handoff.
+
+The saved GitHub Desktop changes contained 32 entries: 19 source/configuration
+files and 13 generated Python cache files. The ZIP includes the 19 source
+files and excludes the caches. All 19 were checked against the saved Git
+objects after normalizing Windows line endings and matched. An earlier report
+that CockpitLayout.jsx differed was incorrect: the comparison had stripped
+its UTF-8 byte-order mark. A raw-byte check confirmed it matches.
+
+The previous feature-branch stash is no longer in the current stash list, but
+its Git object 19f7636d386090451504b6de51ab1a660a724615 was readable during
+this review. The current working tree and remote branch have not been fully
+reconciled.
+
+1. MIKROTIK RADIO STATISTICS
+
+The dashboard was extended to monitor the mANTBox ax and NetMetal ax through
+the backend. The collector polls RouterOS over HTTPS and the backend exposes
+snapshots through GET /api/radio-link. The dashboard polls every five seconds.
+
+The radio panel displays API status, signal strength, TX/RX link rates and
+throughput, CPU and memory information, and recent-sample charts. Noise floor
+and SNR appear when usable values are available. Browser-session graphs keep
+up to 600 samples. During bench testing both radios reported online with live
+statistics. These readings do not independently prove the video traffic path.
+
+The normal collector avoids disruptive frequency scans. The package also
+contains backend/routers/radio_diagnostics.py, but this optional diagnostics
+route is incomplete: it imports ingestion.mikrotik_collector while the
+included collector is under services/, and backend/main.py does not register
+the router. Review its imports and wiring before using it. The regular radio
+statistics panel uses the separate working collector and telemetry route.
+
+2. DASHBOARD LAYOUT
+
+PrimaryOperatorView.jsx places the radio panel and the primary and secondary
+camera panels inside CockpitLayout.jsx. The cockpit supports edit handles,
+drag-and-drop or click-to-swap, reset, and browser storage of panel order.
+It also handles older saved orders that do not include the radio panel.
+
+The primary camera displayed live frames during local testing. A separate
+drag verification timed out during a later relaunch and was skipped; check
+the panel movement again when integrating into the receiving branch.
+
+3. VIDEO STREAMING
+
+The current local bench path is:
+
+  USB webcam -> Chrome H.264 publisher -> MediaMTX -> WebRTC -> phone
+
+Chrome publishes locally over WebRTC. The phone reads the same MediaMTX
+stream through the MikroTik network using a second WebRTC connection. The
+previous test used two MediaMTX instances linked by RTSP/TCP; the tested
+single-server profile removes that relay.
+
+Front Camera embeds the MediaMTX player. The URL comes from
+VITE_ROVERCAM_PLAYER_URL when set, otherwise it uses the dashboard hostname,
+port 8889 and /rovercam/. Other cameras retain their existing image source
+behavior. The player permits autoplay. The simulated FPS, RTT and LIVE
+badges are hidden for the WebRTC player.
+
+The low-rate test requested H.264 at 640 x 360, 15 fps and 700 kbps.
+Chrome manages its keyframe interval. Short local tests showed advancing
+frames at 640 x 360, and the phone user confirmed fresh video with the
+single-server setup. A short server-side phone sample showed zero discarded
+frames. These checks do not establish long-duration reliability or latency.
+
+MediaMTX uses TCP 8889 for HTTP signaling, UDP or TCP 8189 for WebRTC media,
+and loopback-only TCP 9997 for its API. The phone test allowed reading from
+192.168.88.252 and local publishing from loopback. The laptop CPE-facing
+address was 192.168.88.254. Adapt addresses for the receiving network.
+
+4. TEST FINDINGS AND LIMITATIONS
+
+- The earlier two-server test recorded RTP packet loss, discarded frames
+  and an RTSP source timeout. Their origin was not fully isolated.
+- A forced local reader disconnect in the single-server setup took about
+  19.5 seconds to show a fresh frame. This was one local test.
+- An experimental fast-recovery player failed playback verification and
+  was not installed in the active dashboard.
+- Physical link interruption, non-line-of-sight recovery, end-to-end latency
+  and sustained video stability still need measurement.
+- Phone playback worked, but simultaneous radio counters and routes were not
+  recorded to independently prove each hop in the video path.
+- Windows Smart App Control blocked the installed GStreamer tools and
+  dependencies of the available FFmpeg build. Security was not disabled.
+- The launcher later selected Lenovo FHD Webcam by default. Successful
+  capture from that specific camera was not established in the available
+  test log. Earlier verified capture used the prior USB Camera.
+- The production build and targeted camera checks passed in the earlier
+  integration. Project-wide ESLint reported 107 errors and one warning in
+  other files at that time.
+
+5. DASHBOARD FILE INVENTORY
+
+Modified from the saved base:
+- .gitignore - ignore rules.
+- package.json and package-lock.json - dependency changes and lockfile.
+- backend/main.py - backend startup and application integration.
+- backend/models/telemetry.py - telemetry model updates.
+- backend/routers/telemetry.py - telemetry and radio data routes.
+- backend/services/telemetry_service.py - telemetry state/service updates.
+- src/context/RoverContext.jsx - radio polling and dashboard state.
+- src/pages/PrimaryOperatorView.jsx - cockpit and panel composition.
+- src/components/video/CameraFrame.jsx - WebRTC player rendering.
+- src/services/cameras.js - Front Camera player URL configuration.
+
+New in the saved changes:
+- backend/services/mikrotik_collector.py - RouterOS HTTPS polling.
+- backend/routers/radio_diagnostics.py - optional diagnostics requiring review.
+- src/components/system/RadioLinkPanel.jsx - radio statistics and charts.
+- src/pages/CockpitLayout.jsx - draggable, persistent cockpit layout.
+- test_mantbox_https.py and test_netmetal_https.py - HTTPS connection tests.
+- test_mantbox_radio.py and test_netmetal_radio.py - radio data test scripts.
+
+6. BENCH FILES IN THE ZIP
+
+- IRC-Rover-System.ps1 - starts, checks and stops local bench processes.
+- rover-single.yml - single-server MediaMTX configuration.
+- test-rovercam.cjs - camera publisher and browser playback test.
+- phone-dashboard.py - serves the mobile build and forwards the read-only
+  radio statistics request to the local backend.
+- How-to-launch.md - laptop-specific operating instructions.
+- Wireless-test.md - phone and two-radio test procedure.
+
+These files reference this laptop's paths, IP addresses, tools and prebuilt
+dashboard. The build output, dependencies and Codex browser automation
+runtime are excluded, so the launcher is not a standalone installer for
+another machine. Review and adapt the files to the receiving setup.
+
+7. CONFIGURATION AND HANDOFF
+
+backend/.env, passwords, Git metadata, virtual environments, node_modules,
+build output and Python cache files are excluded. The collector needs local
+credentials and certificate paths configured on the receiving machine. Do
+not upload the existing backend/.env.
+
+The dashboard files represent proposed updates to their existing paths.
+Review the target branch and integrate each intended change. Bench files can
+be kept separately for testing.
